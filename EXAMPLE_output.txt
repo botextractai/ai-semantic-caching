@@ -1,0 +1,85 @@
+Redis connection check
+----------------------
+
+Redis connection successful
+Connected to: redis://localhost:6379
+
+
+STEP 1 - Redis Setup & Vector Index
+-----------------------------------
+
+Redis is running and accessible!
+16:19:48 sentence_transformers.SentenceTransformer INFO   Use pytorch device_name: cpu
+16:19:48 sentence_transformers.SentenceTransformer INFO   Load pretrained SentenceTransformer: redis/langcache-embed-v1
+16:19:59 redisvl.index.index INFO   Index already exists, not overwriting.
+✅ Redis semantic cache initialised successfully
+✅ FAQ data successfully hydrated into cache
+
+
+STEP 2 - Embedding Model Selection
+----------------------------------
+
+16:19:59 sentence_transformers.SentenceTransformer INFO   Use pytorch device_name: cpu
+16:19:59 sentence_transformers.SentenceTransformer INFO   Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+Embedding shape: (384,)
+First 5 values: [ 0.02579629  0.06832248  0.00649853  0.03393113 -0.01079512]
+
+
+STEP 3 - Build Semantic Cache logic
+-----------------------------------
+
+✅ Cache HIT for query: How can I get a refund?
+Hits: 1, Misses: 0, Hit Rate: 100.00%
+Response: To request a refund, visit your orders page and select Request Refund. Refunds are processed within 3-5 business days.
+
+❌ Cache MISS for query: I forgot my password
+Hits: 1, Misses: 1, Hit Rate: 50.00%
+Response: Generated response for 'I forgot my password'
+
+❌ Cache MISS for query: What's your refund policy?
+Hits: 1, Misses: 2, Hit Rate: 33.33%
+Response: Generated response for 'What's your refund policy?'
+
+✅ Cache HIT for query: Cancel my subscription
+Hits: 2, Misses: 2, Hit Rate: 50.00%
+Response: Go to Account Settings > Subscriptions and click Cancel Subscription. You'll retain access until the end of your billing period.
+
+✅ Cache HIT for query: Do you ship internationally?
+Hits: 3, Misses: 2, Hit Rate: 60.00%
+Response: Yes, we ship to over 50 countries worldwide. International shipping typically takes 7-14 business days.
+
+
+
+STEP 4 - Cache Retrieval & Threshold Tuning
+-------------------------------------------
+
+Threshold: 0.08 | Hit Rate: 20.00% | Hits: 2 | Matched: ['Can I get a refund?', "What's your refund policy?"]
+Threshold: 0.10 | Hit Rate: 30.00% | Hits: 3 | Matched: ['Can I get a refund?', "What's your refund policy?", 'Help me reset my password']
+Threshold: 0.13 | Hit Rate: 30.00% | Hits: 3 | Matched: ['Can I get a refund?', "What's your refund policy?", 'Help me reset my password']
+Threshold: 0.15 | Hit Rate: 50.00% | Hits: 5 | Matched: ['Can I get a refund?', "What's your refund policy?", 'Help me reset my password']
+Threshold: 0.18 | Hit Rate: 50.00% | Hits: 5 | Matched: ['Can I get a refund?', "What's your refund policy?", 'Help me reset my password']
+Threshold: 0.20 | Hit Rate: 50.00% | Hits: 5 | Matched: ['Can I get a refund?', "What's your refund policy?", 'Help me reset my password']
+Threshold: 0.25 | Hit Rate: 50.00% | Hits: 5 | Matched: ['Can I get a refund?', "What's your refund policy?", 'Help me reset my password']
+Recommended optimal threshold: 0.15 (F1 Score=83.33%)
+
+
+STEP 5 - Test & Evaluate Performance
+------------------------------------
+
+***********************
+* Performance Summary *
+***********************
+Total Queries: 52
+Average Latency: 237.1ms
+P50 Latency: 11.0ms
+P95 Latency: 576.9ms
+
+By Label:
+  cache_hit: 8 calls, 7.3ms avg
+  llm_call: 44 calls, 508.9ms avg
+
+LLM Calls: 44
+Total Cost: $0.0003
+Avg Cost/Query: $0.000005
+Cache Hit Rate: 15.38%
+⚠️ Hit rate below target. Consider tuning similarity threshold.
